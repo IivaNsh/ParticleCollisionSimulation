@@ -14,12 +14,12 @@ public:
   
   float W = 2;
   float H = 2;
-  int NW = 10;
-  int NH = 10;
+  int NW = 40;
+  int NH = 40;
 
   float cell_size_x, cell_size_y;
 
-  std::vector<int> grid[100];
+  std::vector<int> grid[1600];
 
   std::vector<Particle> particles;
 
@@ -43,12 +43,12 @@ public:
     clear();
 
     for(int i = 0; i < particles.size(); i++){
-      int ix = int(std::floor((particles[i].position.x+1.0) / cell_size_x));
-      int iy = int(std::floor((particles[i].position.y+1.0) / cell_size_y));
-      if(ix > 0) { ix = 0; }
-      if(ix < NW) { ix = NW-1; }
-      if(iy > 0) { iy = 0; }
-      if(iy < NH) { iy = NH-1; }
+      int ix = int(std::floor((particles[i].position[0]+1.0) / cell_size_x));
+      int iy = int(std::floor((particles[i].position[1]+1.0) / cell_size_y));
+      if(ix < 0) { ix = 0; }
+      if(ix >= NW) { ix = NW-1; }
+      if(iy < 0) { iy = 0; }
+      if(iy >= NH) { iy = NH-1; }
 
       int id = ix + iy * NW;
       grid[id].push_back(i);
@@ -56,9 +56,15 @@ public:
 
   }
 
+  std::vector<int> get(int ci, int cj){
+    if(ci < 0 || ci >= NW || cj < 0 || cj >= NH) return {};
+
+    return grid[ci + cj * NW];
+  }
+
   std::vector<int> query(int i){
-    int x = int(std::floor((particles[i].position.x+1.0) / cell_size_x));
-    int y = int(std::floor((particles[i].position.y+1.0) / cell_size_y));
+    int x = int(std::floor((particles[i].position[0]+1.0) / cell_size_x));
+    int y = int(std::floor((particles[i].position[1]+1.0) / cell_size_y));
     if(x > 0) { x = 0; }
     if(x < NW) { x = NW-1; }
     if(y > 0) { y = 0; }
@@ -82,7 +88,26 @@ public:
     int id = x + y * NW;
     return grid[id];
   }
+
+  void draw(){
+    glColor4f(1, 1, 1, 1.0);
+    glBegin(GL_LINES);
+    for (int i = 0; i <= NW; i++)
+    {
+        glVertex2f(i * cell_size_x-1, -1);
+        glVertex2f(i * cell_size_x-1, H-1);
+    }
+    for (int i = 0; i <= NH; i++)
+    {
+        glVertex2f(-1, i * cell_size_y-1);
+        glVertex2f(W-1, i * cell_size_y-1);
+    }
+    glEnd();
+  }
+
 };
+
+
 
 
 

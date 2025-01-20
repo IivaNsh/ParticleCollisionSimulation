@@ -68,8 +68,8 @@ int main(){
   
   glfwMakeContextCurrent(window);
   gladLoadGL(glfwGetProcAddress);
-  // glfwSwapInterval(1);
 
+  glfwSwapInterval(0);
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -105,9 +105,9 @@ int main(){
 
   float last_time = glfwGetTime();
 
+  int N = 5000;
   
-  
-  Solver solver(10000);
+  Solver solver(N);
   int count = 0;
   // for(int i = 0; i < 100; i++){
   //   solver.add_particle(Particle(Vector2f(uniform_random(-1,1), uniform_random(-1,1)), Vector2f(uniform_random(-0.01,0.01), uniform_random(-0.01,0.01)), 0.02, 1.0, 1.0, 1.0));
@@ -174,7 +174,7 @@ int main(){
 
 
       // gltViewport(width, height);
-      // glViewport(0, 0, width, height);
+      glViewport(0, 0, width, float(height)*float(height)/float(width));
       glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
 
@@ -184,14 +184,33 @@ int main(){
 
 
       float new_time = glfwGetTime();
-      // float dt = (new_time - last_time);
-      float dt = 0.005;
+      float dt = (new_time - last_time);
+      // float dt = 0.005;
       last_time = new_time;
 
       if(glfwGetTime()-timer > delay){
-        if(count < 200){
+        if(count < N){
           for(int i = 0; i < 1; i++){
-            solver.add_particle(Particle(Vector2f(0,0), Vector2f(0.005, 0), 0.04, std::sin(glfwGetTime() + 1.0)*0.5+0.5, std::sin(glfwGetTime() + 2.0)*0.5+0.5, std::sin(glfwGetTime() + 3.0)*0.5+0.5));
+            vec2 p = {0,0};
+
+            vec2 v = {std::cos(glfwGetTime()),std::sin(glfwGetTime())};
+            vec2_scale(v, v, 0.0*dt);
+
+            float a = glfwGetTime()/3.0;
+            vec3 col = {std::sin(a + 0.0),
+                        std::sin(a - 2.0*M_PI/3.0),
+                        std::sin(a + 2.0*M_PI/3.0)};
+            vec3_scale(col, col, 0.5);
+            {
+              vec3 t = {0.5, 0.5, 0.5};
+              vec3_add(col, col, t);
+            }
+
+            // float r = 0.02;
+            float r = uniform_random(0.006, 0.01);
+
+            solver.add_particle( Particle(p, v, r, col) );
+            
             count++;
           }
         }

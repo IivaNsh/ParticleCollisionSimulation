@@ -7,40 +7,59 @@
 #define GLFW_INCLUDE_NONE
 #include <glad/gl.h>
 
+#include <iostream>
 
-#include "Vector2.hpp"
+// #include "Vector2.hpp"
 
 class Particle {
 public:
 
-    Vector2f position;
-    Vector2f last_position;
-    Vector2f acceleration;
+    vec2 position;
+    vec2 last_position;
+    vec2 acceleration;
     float radius;
-    float color[3];
+    vec3 color;
 
-    Particle(Vector2f position, float radius): position(position), radius(radius) {}
-    Particle(Vector2f position, Vector2f velocity, float radius): position(position), radius(radius) { set_velocity(velocity, 1.0); }
-    Particle(Vector2f position, Vector2f velocity, float radius, float r, float g, float b): position(position), radius(radius) { set_velocity(velocity, 1.0); set_color(r,g,b); }
-    
-    Vector2f get_velocity() { return position - last_position; }
-    void set_velocity(Vector2f velocity, float dt) { last_position = position - velocity * dt; }
-    
 
-    void set_color(float r, float g, float b){
-        color[0] = r;
-        color[1] = g;
-        color[2] = b;
+
+    Particle(vec2 pos, float radius): radius(radius) {
+        vec2_dup(position, pos);
     }
+    Particle(vec2 pos, vec2 velocity, float radius): radius(radius) {
+        vec2_dup(position, pos);
+        set_velocity(velocity, 1.0);
+    }
+    Particle(vec2 pos, vec2 velocity, float radius, vec3 col): radius(radius) {
+        vec2_dup(position, pos);
+        set_velocity(velocity, 1.0);
+        vec3_dup(color, col);
+    }
+    
+    void get_velocity(vec2 res) { vec2_sub(res, position, last_position); }
+    void set_velocity(vec2 velocity, float dt) { vec2 temp; vec2_scale(temp, velocity, dt); vec2_sub(last_position, position, temp); }
+    
 
     void update(float dt){
-        Vector2f t = position;
-        position = (position * 2.0f - last_position) + acceleration * dt*dt;
-        last_position = t;
+        vec2 t;
+        vec2_dup(t, position);
+
+        vec2 acc;
+        vec2 l_pos;
+        vec2_dup(l_pos, last_position);
+        vec2 pos;
+        vec2_scale(pos, position, 2.0f);
+        vec2_scale(acc, acceleration, dt*dt);
+        vec2_sub(pos, pos, l_pos);
+        vec2_add(position, pos, acc);
+
+        vec2_dup(last_position, t);
+        // last_position = t;
+        // position = (position * 2.0f - last_position) + acceleration * dt*dt;
+        /*last_position = (last_position + position) * 0.5f - acceleration * dt*dt;*/
     }
 
     void draw(){
-        int num_segments = 20;
+        int num_segments = 30;
         float theta = 3.1415926 * 2 / float(num_segments);
         float tangetial_factor = std::tanf(theta); //calculate the tangential factor 
 
@@ -54,7 +73,7 @@ public:
         glBegin(GL_POLYGON);
         for (int i = 0; i < num_segments; i++)
         {
-            glVertex2f(x + position.x, y + position.y); //output vertex 
+            glVertex2f(x + position[0], y + position[1]); //output vertex 
 
             //calculate the tangential vector 
             //remember, the radial vector is (x, y) 
