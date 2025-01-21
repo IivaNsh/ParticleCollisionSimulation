@@ -15,7 +15,7 @@ class Solver{
 private:
     std::unique_ptr<GridHash> grid_hash;
     
-    int substeps = 16;
+    int substeps = 4;
 
 public:
 
@@ -39,7 +39,7 @@ public:
             vec2 normal;
             vec2_norm(normal, distance_vector);
 
-            vec2_scale(normal, normal, 0.5 * overlap_distance);
+            vec2_scale(normal, normal, 0.1 * overlap_distance);
             vec2_add(grid_hash->particles[i].position, grid_hash->particles[i].position, normal);
             vec2_sub(grid_hash->particles[j].position, grid_hash->particles[j].position, normal);
             // grid_hash->particles[i].position += normal * 0.25 * overlap_distance;
@@ -60,6 +60,7 @@ public:
                 cell_vs_cell(ci,cj, ci+1,cj-1);
                 cell_vs_cell(ci,cj, ci-1,cj+1);
             }
+
         }
 
 
@@ -76,12 +77,14 @@ public:
             for(int j : grid_hash->get(ci2, cj2)){
                 // std::cout<<"cvc collisions\n";
                 particle_vs_particle(i,j);
+                
             }
         }
+
     }
 
     void circle_bound_box_collision(Rectangle rectangle, float dt){
-        float damping = 0.1f;
+        float damping = 0.7f;
         for(int i = 0; i < grid_hash->particles.size(); i++){
             vec2 vel;
             grid_hash->particles[i].get_velocity(vel);
@@ -108,7 +111,7 @@ public:
 
     void apply_gravity(){
         for(int i = 0; i < grid_hash->particles.size(); i++){
-            vec2 acc = {0,-1};
+            vec2 acc = {0,-3};
             vec2_dup(grid_hash->particles[i].acceleration, acc);
         }
     }
@@ -125,12 +128,13 @@ public:
 
             apply_gravity();
 
+            vec2 p = {0,0}; vec2 dim = {2,2};
+            circle_bound_box_collision(Rectangle(p, dim), 1.0f);
+
             for(int i = 0; i < grid_hash->particles.size(); i++){
                 grid_hash->particles[i].update(sub_dt);
             }
 
-            vec2 p = {0,0}; vec2 dim = {2,2};
-            circle_bound_box_collision(Rectangle(p, dim), 1.0f);
         }
     }
 

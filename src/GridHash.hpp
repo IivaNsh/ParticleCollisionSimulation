@@ -14,12 +14,12 @@ public:
   
   float W = 2;
   float H = 2;
-  int NW = 40;
-  int NH = 40;
+  int NW = 60;
+  int NH = 60;
 
   float cell_size_x, cell_size_y;
 
-  std::vector<int> grid[1600];
+  std::vector<int> grid[3600];
 
   std::vector<Particle> particles;
 
@@ -90,7 +90,7 @@ public:
   }
 
   void draw(){
-    glColor4f(1, 1, 1, 1.0);
+    glColor4f(1, 1, 1, 0.2);
     glBegin(GL_LINES);
     for (int i = 0; i <= NW; i++)
     {

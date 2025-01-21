@@ -105,7 +105,7 @@ int main(){
 
   float last_time = glfwGetTime();
 
-  int N = 5000;
+  int N = 20000;
   
   Solver solver(N);
   int count = 0;
@@ -117,8 +117,15 @@ int main(){
   // bool show_another_window = false;
   // ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-  float delay = 0.05;
+  float delay = 0.01;
   float timer = 0;
+
+  // vec2 p1 = {0, 0.5};
+  // vec2 v1 = {0, -0.005};
+  // vec3 col1 = {1,1,1};
+  // solver.add_particle( Particle(p1, v1, 0.02, col1) );
+  
+
 
   while (!glfwWindowShouldClose(window))
   {
@@ -174,27 +181,24 @@ int main(){
 
 
       // gltViewport(width, height);
-      glViewport(0, 0, width, float(height)*float(height)/float(width));
+      // glViewport(0, 0, width, float(height)*float(height)/float(width));
       glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
 
 
 
-
-
-
       float new_time = glfwGetTime();
-      float dt = (new_time - last_time);
-      // float dt = 0.005;
+      // float dt = (new_time - last_time);
+      float dt = 0.005;
       last_time = new_time;
 
       if(glfwGetTime()-timer > delay){
-        if(count < N){
-          for(int i = 0; i < 1; i++){
-            vec2 p = {0,0};
+          if(count < N){
+            vec2 p = {-1.9,1.9};
+            // vec2_scale(p, p, 0.02);
 
-            vec2 v = {std::cos(glfwGetTime()),std::sin(glfwGetTime())};
-            vec2_scale(v, v, 0.0*dt);
+            vec2 v = { 0.05*dt, 0 };//{std::cos(glfwGetTime()),std::sin(glfwGetTime())};
+            // vec2_scale(v, v, 0.1*dt);
 
             float a = glfwGetTime()/3.0;
             vec3 col = {std::sin(a + 0.0),
@@ -207,15 +211,16 @@ int main(){
             }
 
             // float r = 0.02;
-            float r = uniform_random(0.006, 0.01);
+            float r = 0.005;//uniform_random(0.005, 0.005);
 
             solver.add_particle( Particle(p, v, r, col) );
             
             count++;
-          }
         }
         timer = glfwGetTime();
       }
+
+
 
       solver.update(dt);
 
